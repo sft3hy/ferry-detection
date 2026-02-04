@@ -37,3 +37,6 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+imagePullSecrets:
+  - name: s-hxl2n

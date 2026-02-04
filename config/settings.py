@@ -64,6 +64,6 @@ if TEST == "True":
     CA_BUNDLE_PATH = "/usr/local/share/ca-certificates/dod_CAs.pem"
 
 else:
-    CERT_PATH = "/config/justcert.crt" #/etc/rancher/ssl/npe/tls.crt"
-    KEY_PATH = "/config/decrypted.key"#/etc/rancher/ssl/npe/tls.key"
-    CA_BUNDLE_PATH = "/config/dod_CA.pem"#/etc/rancher/ssl/ca/ca-bundle"  # Path is mountPath + keyName
+    CERT_PATH = os.environ.get("CERT_PATH", "/config/justcert.crt")
+    KEY_PATH = os.environ.get("KEY_PATH", "/config/decrypted.key")
+    CA_BUNDLE_PATH = os.environ.get("CA_BUNDLE_PATH", "/config/dod_CA.pem")

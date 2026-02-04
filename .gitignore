@@ -51,3 +51,7 @@ Thumbs.db
 
 # Project specific
 config/local_settings.py
+certs/
+*.key
+*.pem
+*.crt

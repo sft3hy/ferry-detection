@@ -1,0 +1,40 @@
+image:
+  repository: ferry-detection
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+nameOverride: ""
+fullnameOverride: ""
+
+resources:
+  # Limits and requests for the large YOLO model
+  limits:
+    cpu: 4000m
+    memory: 8Gi
+  requests:
+    cpu: 2000m
+    memory: 4Gi
+
+env:
+  TEST_LOCAL: "False"
+  # CHATKEY should be provided via secret or set here if safe (using secret is better practice but putting placeholder here)
+  CHATKEY: "replace-me-or-use-secret"
+
+persistence:
+  certs:
+    enabled: true
+    mountPath: /config
+    # Assuming a PVC or HostPath is used, or a Secret. 
+    # For now, we will assume these are mounted from a Secret named 'ferry-certs' created separately
+    # or we can define it here if we had the cert contents.
+    # The user request said "certs mounted as well", implying they exist or we need a mechanism.
+    # We will use a volume mount approach relying on an existing Secret or ConfigMap.
+    volumeName: certs-volume
+    secretName: ferry_secrets
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

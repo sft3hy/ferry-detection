@@ -1,0 +1,6 @@
+requests
+pillow
+opencv-python
+ultralytics
+schedule
+python-dateutil

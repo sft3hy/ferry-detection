@@ -21,6 +21,11 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
+            - name: CHATKEY
+              valueFrom:
+                secretKeyRef:
+                  name: ferry-secrets
+                  key: CHATKEY
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}

@@ -18,8 +18,7 @@ resources:
 
 env:
   TEST_LOCAL: "False"
-  # CHATKEY should be provided via secret or set here if safe (using secret is better practice but putting placeholder here)
-  CHATKEY: "replace-me-or-use-secret"
+
 
 persistence:
   certs:
@@ -31,7 +30,7 @@ persistence:
     # The user request said "certs mounted as well", implying they exist or we need a mechanism.
     # We will use a volume mount approach relying on an existing Secret or ConfigMap.
     volumeName: certs-volume
-    secretName: ferry_secrets
+    secretName: ferry-secrets
 
 nodeSelector: {}
 

@@ -55,9 +55,9 @@ LOG_DETECTIONS = False
 LOG_FILE = "ferry_detections.log"
 
 # Image saving (optional)
-SAVE_IMAGES = True
+SAVE_IMAGES = False
 SAVE_DIR = "detected_images"
-SAVE_ALL_CAPTURES = True  # Debug: save all downloaded images regardless of detection
+SAVE_ALL_CAPTURES = False  # Debug: save all downloaded images regardless of detection
 
 
 CS_HOST = "chatsurfer.nro.mil"

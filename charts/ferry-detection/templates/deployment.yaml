@@ -28,24 +28,25 @@ spec:
             - name: CHATKEY
               valueFrom:
                 secretKeyRef:
-                  name: ferry-secrets
+                  name: {{ .Values.existingSecret.name }}
                   key: CHATKEY
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
           volumeMounts:
-            {{- if .Values.persistence.certs.enabled }}
-            - name: {{ .Values.persistence.certs.volumeName }}
-              mountPath: {{ .Values.persistence.certs.mountPath }}
-              readOnly: true
-            {{- end }}
+          - name: certs
+            mountPath: {{ .Values.secretMount.mountPath }}
+            readOnly: true
       volumes:
-        {{- if .Values.persistence.certs.enabled }}
-        - name: {{ .Values.persistence.certs.volumeName }}
+        - name: certs
           secret:
-            secretName: {{ .Values.persistence.certs.secretName }}
-        {{- end }}
+            secretName: {{ .Values.existingSecret.name }}
+            items:
+{{- range .Values.secretMount.items }}
+              - key: {{ .key }}
+                path: {{ .path }}
+{{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

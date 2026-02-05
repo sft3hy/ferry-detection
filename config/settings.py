@@ -64,6 +64,6 @@ if TEST == "True":
     CA_BUNDLE_PATH = "/usr/local/share/ca-certificates/dod_CAs.pem"
 
 else:
-    CERT_PATH = os.environ.get("CERT_PATH", "/config/justcert.crt")
-    KEY_PATH = os.environ.get("KEY_PATH", "/config/decrypted.key")
-    CA_BUNDLE_PATH = os.environ.get("CA_BUNDLE_PATH", "/config/dod_CA.pem")
+    CERT_PATH = "/etc/certs/justcert.crt"
+    KEY_PATH = "/etc/certs/decrypted.key"
+    CA_BUNDLE_PATH = "/etc/certs/dod_CA.pem"

@@ -16,21 +16,25 @@ resources:
     cpu: 2000m
     memory: 4Gi
 
-env:
-  TEST_LOCAL: "False"
+existingSecret:
+  name: ferry-secrets
 
+secretMount:
+  enabled: true
+  mountPath: /etc/certs
+  items:
+    - key: dod_CA.pem
+      path: dod_CA.pem
+    - key: decrypted.key
+      path: decrypted.key
+    - key: justcrt.crt
+      path: justcrt.crt
 
-persistence:
-  certs:
-    enabled: true
-    mountPath: /config
-    # Assuming a PVC or HostPath is used, or a Secret. 
-    # For now, we will assume these are mounted from a Secret named 'ferry-certs' created separately
-    # or we can define it here if we had the cert contents.
-    # The user request said "certs mounted as well", implying they exist or we need a mechanism.
-    # We will use a volume mount approach relying on an existing Secret or ConfigMap.
-    volumeName: certs-volume
-    secretName: ferry-secrets
+secretEnv:
+  enabled: true
+  keys:
+    - CHATKEY
+    - TEST_LOCAL
 
 nodeSelector: {}
 

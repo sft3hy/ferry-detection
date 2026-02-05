@@ -134,7 +134,15 @@ class FerryMonitor:
         # Print result
         print(f"{status} at {dock_name} ({timestamp})")
 
-        cs_message_text = f"{dock_name}: {status}"
+        # Define display names with coordinates
+        display_names = {
+            "Steilacoom Dock": "Steilacoom Dock (47.172912N,122.603891W)",
+            "Anderson Island Dock": "Anderson Island (47.178611N,122.677250W) Dock"
+        }
+        
+        display_name = display_names.get(dock_name, dock_name)
+
+        cs_message_text = f"{display_name}: {status}"
         send_public_message(message_text=cs_message_text, roomName="pierce_county_ferry_detector")
 
         

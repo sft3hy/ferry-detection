@@ -60,6 +60,21 @@ def send_public_message(
 
 
 def session_request():
+    # --- INSERT DEBUGGING HERE ---
+    print(f"DEBUG: Inspecting CA Bundle at: {CA_BUNDLE_PATH}")
+    if os.path.exists(CA_BUNDLE_PATH):
+        try: 
+            with open(CA_BUNDLE_PATH, 'rb') as f:
+                content = f.read()
+            print(f"DEBUG: File size: {len(content)} bytes")
+            print(f"DEBUG: First 50 bytes: {content[:50]}")
+            # Check for the specific concatenation error
+            if b"-----END CERTIFICATE----------BEGIN" in content:
+                print("CRITICAL ERROR: CA Bundle is missing newlines between certs!")
+        except Exception as e:
+            print(f"DEBUG: Read error: {e}")
+    else:
+        print("DEBUG: CA Bundle file does not exist at path!")
     # clear_sessions()
     print("session expired, creating new session")
     url = "https://" + CS_HOST + "/api/auth/newsession"

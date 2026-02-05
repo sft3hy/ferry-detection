@@ -3,7 +3,7 @@ Image processing utilities for ferry detection
 """
 import cv2
 import numpy as np
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageDraw, ImageFont
 import logging
 
 logger = logging.getLogger(__name__)
@@ -52,18 +52,20 @@ def optimize_image(image: Image.Image, target_size: int = 640) -> Image.Image:
         return image
 
 
-def crop_left_half(image: Image.Image) -> Image.Image:
+def crop_width(image: Image.Image, percentage: float = 0.5) -> Image.Image:
     """
-    Crop the image to keep only the left half.
+    Crop the image to keep only the left percentage of the width.
     
     Args:
         image: Input PIL Image
+        percentage: Float between 0.0 and 1.0 representing the left portion to keep
         
     Returns:
-        Cropped PIL Image (left 50% of width, full height)
+        Cropped PIL Image
     """
     width, height = image.size
-    return image.crop((0, 0, width // 2, height))
+    new_width = int(width * percentage)
+    return image.crop((0, 0, new_width, height))
 
 
 def add_padding(image: Image.Image, padding: int = 50, color: tuple = (114, 114, 114)) -> Image.Image:
@@ -86,5 +88,57 @@ def add_padding(image: Image.Image, padding: int = 50, color: tuple = (114, 114,
     new_image.paste(image, (padding, padding))
     
     return new_image
+    return new_image
 
+
+def draw_detections(image: Image.Image, detections: list) -> Image.Image:
+    """
+    Draw bounding boxes and labels on the image.
+    
+    Args:
+        image: Input PIL Image
+        detections: List of detection dictionaries (containing 'bbox', 'confidence', 'class_name')
+        
+    Returns:
+        Annotated PIL Image
+    """
+    annotated_image = image.copy()
+    draw = ImageDraw.Draw(annotated_image)
+    
+    try:
+        # Try to load a font, fallback to default
+        font = ImageFont.truetype("Arial.ttf", 15)
+    except IOError:
+        font = ImageFont.load_default()
+        
+    for detection in detections:
+        bbox = detection['bbox']
+        # bbox is [x1, y1, x2, y2]
+        x1, y1, x2, y2 = bbox
+        
+        # specific color for boats/ferries (e.g., red/orange)
+        color = "#FF3838" 
+        
+        # Draw rectangle
+        draw.rectangle([x1, y1, x2, y2], outline=color, width=3)
+        
+        # Draw label
+        label = f"{detection.get('class_name', 'ferry')} {detection.get('confidence', 0.0):.2f}"
+        
+        # Get text size
+        try:
+             # PIL < 10.0
+            text_size = draw.textsize(label, font=font)
+        except AttributeError:
+             # PIL >= 10.0
+            left, top, right, bottom = draw.textbbox((0, 0), label, font=font)
+            text_size = (right - left, bottom - top)
+            
+        # Draw background for label
+        draw.rectangle([x1, y1 - text_size[1] - 4, x1 + text_size[0] + 4, y1], fill=color)
+        
+        # Draw text
+        draw.text((x1 + 2, y1 - text_size[1] - 2), label, fill="white", font=font)
+        
+    return annotated_image
 

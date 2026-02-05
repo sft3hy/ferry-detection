@@ -42,6 +42,10 @@ DETECTION_CONFIG = {
     # Standard COCO: 8 is 'boat'
     # For custom models, check the model's class list (often 0 for single-class)
     'target_classes': [8],
+
+    # Minimum bounding box width to be considered a ferry
+    # Small boats often appear as small bounding boxes (e.g., < 20px width)
+    'min_bbox_width': 105,
     
     # Custom model path (only used if model_type is 'custom')
     'custom_model_path': None
@@ -55,9 +59,9 @@ LOG_DETECTIONS = False
 LOG_FILE = "ferry_detections.log"
 
 # Image saving (optional)
-SAVE_IMAGES = False
+SAVE_IMAGES = True
 SAVE_DIR = "detected_images"
-SAVE_ALL_CAPTURES = False  # Debug: save all downloaded images regardless of detection
+SAVE_ALL_CAPTURES = True  # Debug: save all downloaded images regardless of detection
 
 
 CS_HOST = "chatsurfer.nro.mil"

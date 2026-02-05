@@ -17,7 +17,7 @@ from config.settings import (
     DOCK_SCHEDULES, TIMEZONE
 )
 from utils.scraper import download_image, save_image
-from utils.image_processing import optimize_image, crop_left_half, add_padding
+from utils.image_processing import optimize_image, crop_width, add_padding, draw_detections
 from models.detector_factory import DetectorFactory
 from dateutil import tz
 
@@ -111,8 +111,16 @@ class FerryMonitor:
             print(f"❌ {dock_name}: Failed to retrieve image")
             return
 
-        # Crop to left half
-        image = crop_left_half(image)
+        # Apply cropping based on dock
+        if dock_name == "Anderson Island Dock":
+            # Keep left 65% for Anderson Island
+            image = crop_width(image, percentage=0.65)
+        elif dock_name == "Steilacoom Dock":
+            # No cropping for Steilacoom
+            pass
+        else:
+            # Default behavior (if any other docks are added): keep left 50%
+            image = crop_width(image, percentage=0.5)
         
         # Add padding to prevent edge detection issues
         image = add_padding(image)
@@ -127,6 +135,33 @@ class FerryMonitor:
 
         # Detect ships
         ship_detected, detection_info = self.detector.detect(image)
+        
+        # Filter detections by size
+        min_width = DETECTION_CONFIG.get('min_bbox_width', 0)
+        filtered_detections = []
+        
+        if ship_detected:
+            initial_count = len(detection_info.get('detections', []))
+            for detection in detection_info.get('detections', []):
+                bbox = detection['bbox']
+                # bbox format is usually [x1, y1, x2, y2]
+                width = abs(bbox[2] - bbox[0])
+                height = abs(bbox[3] - bbox[1])
+                
+                if width >= min_width:
+                    filtered_detections.append(detection)
+                else:
+                    if LOG_DETECTIONS:
+                        logger.info(f"Filtered out small detection at {dock_name}: width={width:.1f}px (threshold={min_width}px)")
+            
+            # Update detection info
+            detection_info['detections'] = filtered_detections
+            detection_info['count'] = len(filtered_detections)
+            ship_detected = len(filtered_detections) > 0
+            
+            if initial_count > 0 and len(filtered_detections) == 0:
+                 logger.info(f"All detections filtered out for {dock_name} due to size threshold")
+
         
         # Format output
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -164,11 +199,12 @@ class FerryMonitor:
             if LOG_DETECTIONS:
                 logger.info(f"{dock_name}: SHIP DETECTED - {detection_info}")
             
-            # Save annotated version if available
-            if SAVE_IMAGES and 'annotated_image' in detection_info:
+            # Generate annotated image with filtered detections
+            if SAVE_IMAGES:
+                annotated_image = draw_detections(image, filtered_detections)
                 annotated_filename = f"{dock_name.replace(' ', '_')}_{timestamp.replace(':', '-').replace(' ', '_')}_annotated.jpg"
                 annotated_filepath = Path(SAVE_DIR) / annotated_filename
-                if save_image(detection_info['annotated_image'], str(annotated_filepath)):
+                if save_image(annotated_image, str(annotated_filepath)):
                     pass
                         # logger.info(f"Saved annotated detection image: {annotated_filepath}")
         else:
@@ -229,7 +265,7 @@ class FerryMonitor:
 
 def main():
     """Main entry point"""
-    time.sleep(300)
+    # time.sleep(300)
     try:
         monitor = FerryMonitor()
         monitor.run()

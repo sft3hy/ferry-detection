@@ -137,7 +137,7 @@ class FerryMonitor:
         # Define display names with coordinates
         display_names = {
             "Steilacoom Dock": "Steilacoom Dock (47.172912N,122.603891W)",
-            "Anderson Island Dock": "Anderson Island (47.178611N,122.677250W) Dock"
+            "Anderson Island Dock": "Anderson Island Dock (47.178611N,122.677250W)"
         }
         
         display_name = display_names.get(dock_name, dock_name)

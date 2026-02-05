@@ -10,6 +10,13 @@ DOCKS = {
     "Anderson Island Dock": "https://online.co.pierce.wa.us/xml/abtus/ourorg/pwu/ferry/aiferry.jpg"
 }
 
+# Schedule Settings (Pacific Time)
+TIMEZONE = 'US/Pacific'
+DOCK_SCHEDULES = {
+    "Steilacoom Dock": {"start": "04:45", "end": "22:20"},
+    "Anderson Island Dock": {"start": "05:15", "end": "22:50"}
+}
+
 
 # Detection settings
 DETECTION_CONFIG = {

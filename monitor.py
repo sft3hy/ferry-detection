@@ -8,15 +8,17 @@ import schedule
 import time
 from datetime import datetime
 from pathlib import Path
-from utils.cs_helpers import send_public_message, create_session
+from utils.cs_helpers import send_public_message
 
 from config.settings import (
     DOCKS, DETECTION_CONFIG, CHECK_INTERVAL_SECONDS,
-    LOG_DETECTIONS, LOG_FILE, SAVE_IMAGES, SAVE_ALL_CAPTURES, SAVE_DIR
+    LOG_DETECTIONS, LOG_FILE, SAVE_IMAGES, SAVE_ALL_CAPTURES, SAVE_DIR,
+    DOCK_SCHEDULES, TIMEZONE
 )
 from utils.scraper import download_image, save_image
-from utils.image_processing import optimize_image
+from utils.image_processing import optimize_image, crop_left_half, add_padding
 from models.detector_factory import DetectorFactory
+from dateutil import tz
 
 
 # Configure logging
@@ -58,6 +60,34 @@ class FerryMonitor:
         logger.info(f"Check interval: {CHECK_INTERVAL_SECONDS} seconds")
         
     
+    def is_dock_active(self, dock_name: str) -> bool:
+        """
+        Check if the dock is currently active based on the schedule
+        """
+        if dock_name not in DOCK_SCHEDULES:
+            return True
+            
+        schedule = DOCK_SCHEDULES[dock_name]
+        
+        # Get current time in target timezone
+        zone = tz.gettz(TIMEZONE)
+        now = datetime.now(zone)
+        
+        # Parse schedule times
+        start_str = schedule['start']
+        end_str = schedule['end']
+        
+        start_time = datetime.strptime(start_str, "%H:%M").time()
+        end_time = datetime.strptime(end_str, "%H:%M").time()
+        
+        # Check if current time is within range
+        # Handle overnight schedules if needed (though not required for current request)
+        if start_time <= end_time:
+            return start_time <= now.time() <= end_time
+        else:
+            # Crosses midnight
+            return now.time() >= start_time or now.time() <= end_time
+    
     def check_dock(self, dock_name: str, image_url: str) -> None:
         """
         Check a single dock for ship presence
@@ -68,12 +98,23 @@ class FerryMonitor:
         """
         logger.info(f"Checking {dock_name}...")
         
+        if not self.is_dock_active(dock_name):
+            logger.info(f"{dock_name} is currently inactive (outside schedule)")
+            print(f"💤 {dock_name}: Inactive (Sleep Mode)")
+            return
+
         # Download image
         image = download_image(image_url)
         if image is None:
             logger.error(f"Failed to download image for {dock_name}")
             print(f"❌ {dock_name}: Failed to retrieve image")
             return
+
+        # Crop to left half
+        image = crop_left_half(image)
+        
+        # Add padding to prevent edge detection issues
+        image = add_padding(image)
             
         # logger.info(f"Image downloaded successfully (Size: {image.size})")
         
@@ -94,9 +135,16 @@ class FerryMonitor:
         print(f"{status} at {dock_name} ({timestamp})")
 
         cs_message_text = f"{dock_name}: {status}"
-        send_public_message(message_text=cs_message_text, roomName="pierce_county_ferry_detector", session_id=create_session())
+        send_public_message(message_text=cs_message_text, roomName="pierce_county_ferry_detector")
 
         
+        # Save image if configured (ALWAYS if SAVE_IMAGES is True)
+        if SAVE_IMAGES:
+            filename = f"{dock_name.replace(' ', '_')}_{timestamp.replace(':', '-').replace(' ', '_')}.jpg"
+            filepath = Path(SAVE_DIR) / filename
+            if save_image(image, str(filepath)):
+                pass
+
         if ship_detected:
             count = detection_info.get('count', 0)
             max_conf = detection_info.get('max_confidence', 0.0)
@@ -107,20 +155,12 @@ class FerryMonitor:
             if LOG_DETECTIONS:
                 logger.info(f"{dock_name}: SHIP DETECTED - {detection_info}")
             
-            # Save image if configured
-            if SAVE_IMAGES:
-                filename = f"{dock_name.replace(' ', '_')}_{timestamp.replace(':', '-').replace(' ', '_')}.jpg"
-                filepath = Path(SAVE_DIR) / filename
-                if save_image(image, str(filepath)):
-                    # logger.info(f"Saved detection image: {filepath}")
+            # Save annotated version if available
+            if SAVE_IMAGES and 'annotated_image' in detection_info:
+                annotated_filename = f"{dock_name.replace(' ', '_')}_{timestamp.replace(':', '-').replace(' ', '_')}_annotated.jpg"
+                annotated_filepath = Path(SAVE_DIR) / annotated_filename
+                if save_image(detection_info['annotated_image'], str(annotated_filepath)):
                     pass
-                    
-                # Save annotated version if available
-                if 'annotated_image' in detection_info:
-                    annotated_filename = f"{dock_name.replace(' ', '_')}_{timestamp.replace(':', '-').replace(' ', '_')}_annotated.jpg"
-                    annotated_filepath = Path(SAVE_DIR) / annotated_filename
-                    if save_image(detection_info['annotated_image'], str(annotated_filepath)):
-                        pass
                         # logger.info(f"Saved annotated detection image: {annotated_filepath}")
         else:
             if LOG_DETECTIONS:

@@ -4,7 +4,7 @@ services:
     volumes:
       # Mount certs - placeholder path based on settings.py logic for non-TEST mode
       # Adjust host path as needed for local testing
-      - ./certs:/config
+      - ./certs:/etc/certs
     environment:
       - TEST_LOCAL=False
       - CHATKEY=${CHATKEY}

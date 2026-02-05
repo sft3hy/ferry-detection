@@ -51,3 +51,40 @@ def optimize_image(image: Image.Image, target_size: int = 640) -> Image.Image:
         # Return original image if optimization fails, potentially resized to ensure not too huge
         return image
 
+
+def crop_left_half(image: Image.Image) -> Image.Image:
+    """
+    Crop the image to keep only the left half.
+    
+    Args:
+        image: Input PIL Image
+        
+    Returns:
+        Cropped PIL Image (left 50% of width, full height)
+    """
+    width, height = image.size
+    return image.crop((0, 0, width // 2, height))
+
+
+def add_padding(image: Image.Image, padding: int = 50, color: tuple = (114, 114, 114)) -> Image.Image:
+    """
+    Add padding around the image.
+    
+    Args:
+        image: Input PIL Image
+        padding: Padding size in pixels
+        color: Padding color (default: YOLO gray)
+        
+    Returns:
+        Padded PIL Image
+    """
+    width, height = image.size
+    new_width = width + 2 * padding
+    new_height = height + 2 * padding
+    
+    new_image = Image.new(image.mode, (new_width, new_height), color)
+    new_image.paste(image, (padding, padding))
+    
+    return new_image
+
+

@@ -13,11 +13,12 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY . .
+COPY . /app
 
 # Copy model file explicitly to ensure it's in the expected location if not already covered by COPY . .
 # (Assuming yolo26x.pt is in the root as seen in file list)
 COPY yolo26x.pt /app/yolo26x.pt
+
 
 # Set environment variables defaults
 ENV PYTHONUNBUFFERED=1

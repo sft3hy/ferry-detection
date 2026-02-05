@@ -30,6 +30,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.existingSecret.name }}
                   key: CHATKEY
+            - name: TEST_LOCAL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.existingSecret.name }}
+                  key: TEST_LOCAL
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}

@@ -9,6 +9,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 from utils.cs_helpers import send_public_message
+import time
 
 from config.settings import (
     DOCKS, DETECTION_CONFIG, CHECK_INTERVAL_SECONDS,
@@ -228,6 +229,7 @@ class FerryMonitor:
 
 def main():
     """Main entry point"""
+    time.sleep(300)
     try:
         monitor = FerryMonitor()
         monitor.run()

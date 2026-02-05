@@ -27,8 +27,8 @@ secretMount:
       path: dod_CA.pem
     - key: decrypted.key
       path: decrypted.key
-    - key: justcrt.crt
-      path: justcrt.crt
+    - key: justcert.crt
+      path: justcert.crt
 
 secretEnv:
   enabled: true

@@ -10,11 +10,11 @@ fullnameOverride: ""
 resources:
   # Limits and requests for the large YOLO model
   limits:
+    cpu: 2000m
+    memory: 2Gi
+  requests:
     cpu: 1000m
     memory: 1Gi
-  requests:
-    cpu: 500m
-    memory: 600Mi
 
 existingSecret:
   name: ferry-secrets

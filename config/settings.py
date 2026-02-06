@@ -33,7 +33,7 @@ DETECTION_CONFIG = {
     'model_path': None,
     
     # Model size for standard YOLO models (ignored if model_path is set)
-    'model_size': os.environ.get('MODEL_SIZE', 'm'),
+    'model_size': os.environ.get('MODEL_SIZE', 'x'),
     
     # Confidence threshold for detection (0.0 to 1.0)
     'confidence_threshold': 0.04,
@@ -59,9 +59,9 @@ LOG_DETECTIONS = False
 LOG_FILE = "ferry_detections.log"
 
 # Image saving (optional)
-SAVE_IMAGES = True
+SAVE_IMAGES = False
 SAVE_DIR = "detected_images"
-SAVE_ALL_CAPTURES = True  # Debug: save all downloaded images regardless of detection
+SAVE_ALL_CAPTURES = False  # Debug: save all downloaded images regardless of detection
 
 
 CS_HOST = "chatsurfer.nro.mil"

@@ -47,7 +47,7 @@ class DetectorFactory:
             )
             
         elif model_type == 'yolo26':
-            model_size = config.get('model_size', 'm')
+            model_size = config.get('model_size', 'x')
             model_path = config.get('model_path')
             target_classes = config.get('target_classes', [8])
             

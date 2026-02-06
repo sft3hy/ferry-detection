@@ -9,5 +9,5 @@ services:
       - TEST_LOCAL=False
       - CHATKEY=${CHATKEY}
       - MODEL_TYPE=${MODEL_TYPE:-yolo26}
-      - MODEL_SIZE=${MODEL_SIZE:-m}
+      - MODEL_SIZE=${MODEL_SIZE:-x}
       # Add other necessary env vars here

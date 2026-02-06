@@ -170,16 +170,35 @@ class FerryMonitor:
         # Print result
         print(f"{status} at {dock_name} ({timestamp})")
 
-        # Define display names with coordinates
-        display_names = {
-            "Steilacoom Dock": "Steilacoom Dock (47.172912N,122.603891W)",
-            "Anderson Island Dock": "Anderson Island Dock (47.178611N,122.677250W)"
+        # Define docks with their coordinates
+        docks_info = {
+            "Steilacoom Dock": {
+                "lat": 47.172912, 
+                "lon": -122.603891,
+                "mgrs": "10TET3001724455"
+            },
+            "Anderson Island Dock": {
+                "lat": 47.178611, 
+                "lon": -122.677250,
+                "mgrs": "10TET2445525063"
+            }
         }
         
-        display_name = display_names.get(dock_name, dock_name)
+        display_name = dock_name
+        if dock_name in docks_info:
+            info = docks_info[dock_name]
+            lat = info['lat']
+            lon = info['lon']
+            mgrs_coord = info['mgrs']
+            
+            # user format: 47.172912N,122.603891W
+            lat_str = f"{abs(lat):.6f}{'N' if lat >= 0 else 'S'}"
+            lon_str = f"{abs(lon):.6f}{'E' if lon >= 0 else 'W'}"
+            
+            display_name = f"{dock_name} ({lat_str},{lon_str} | {mgrs_coord})"
 
         cs_message_text = f"{display_name}: {status}"
-        send_public_message(message_text=cs_message_text, roomName="pierce_county_ferry_detector")
+        send_public_message(message_text=cs_message_text, roomName="sams_test_room")
 
         
         # Save image if configured (ALWAYS if SAVE_IMAGES is True)

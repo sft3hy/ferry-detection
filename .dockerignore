@@ -1,0 +1,41 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Models - Exclude all PT files by default, we will explicitly COPY the ones we need
+# BUT we need to be careful. The user wants to toggle models.
+# If we exclude them, they won't be in the build context.
+# However, for a *production* build, we usually only want one model.
+# Since the user specifically asked to "slim down", excluding unused models is key.
+# I will exclude them, and the Dockerfile will ONLY copy the specific one needed.
+# If they want to switch models, they might need to change the Dockerfile or mount them.
+# For now, let's exclude the other big ones.
+yolov8l.pt
+yolov8m.pt
+# yolov8n.pt # Keep nano for testing as it's small (6MB)
+yolov8s.pt
+# yolo26x.pt # This is the main one, we usually want this
+yolov8x.pt
+
+# Data
+detected_images/
+ferry_detections.log
+session_created.txt
+
+# Helm
+charts/
+ferry-detection-helm-chart-*.tgz
+
+# OS
+.DS_Store

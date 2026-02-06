@@ -8,4 +8,6 @@ services:
     environment:
       - TEST_LOCAL=False
       - CHATKEY=${CHATKEY}
+      - MODEL_TYPE=${MODEL_TYPE:-yolo26}
+      - MODEL_SIZE=${MODEL_SIZE:-m}
       # Add other necessary env vars here

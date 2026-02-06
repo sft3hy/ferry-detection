@@ -6,6 +6,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     libgl1 \
     libglib2.0-0 \
+    tzdata \
     && rm -rf /var/lib/apt/lists/*
 
 # Install python dependencies
@@ -13,11 +14,12 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
+# Copy application code
 COPY . /app
 
-# Copy model file explicitly to ensure it's in the expected location if not already covered by COPY . .
-# (Assuming yolo26x.pt is in the root as seen in file list)
-COPY yolo26x.pt /app/yolo26x.pt
+# (Optional) Verify model presence or other setup steps
+# The model files are copied via `COPY .` unless excluded in .dockerignore
+
 
 
 # Set environment variables defaults

@@ -25,7 +25,7 @@ DETECTION_CONFIG = {
     'imgsz': 640,               # Target size for resizing (e.g., 640 or 1280)
     
     # Model type: 'yolov8', 'yolov5', or 'custom'
-    'model_type': 'yolo26',
+    'model_type': os.environ.get('MODEL_TYPE', 'yolo26'),
     
     # Specific model path (Hugging Face ID or local path)
     # Set this to a valid Hugging Face repo ID or local path to use a custom model
@@ -33,7 +33,7 @@ DETECTION_CONFIG = {
     'model_path': None,
     
     # Model size for standard YOLO models (ignored if model_path is set)
-    'model_size': 'x',
+    'model_size': os.environ.get('MODEL_SIZE', 'm'),
     
     # Confidence threshold for detection (0.0 to 1.0)
     'confidence_threshold': 0.04,

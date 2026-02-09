@@ -3,6 +3,7 @@ Ferry Monitor - Main monitoring script
 Checks ferry docks for ship presence every minute
 """
 from requests import session
+import json
 import logging
 import schedule
 import time
@@ -24,7 +25,7 @@ from dateutil import tz
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.ERROR,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler(LOG_FILE) if LOG_DETECTIONS else logging.NullHandler(),
@@ -42,7 +43,7 @@ class FerryMonitor:
     
     def __init__(self):
         """Initialize the ferry monitor"""
-        logger.info("Initializing Ferry Monitor")
+        # logger.info("Initializing Ferry Monitor")
         
         
         # Create detector
@@ -54,11 +55,11 @@ class FerryMonitor:
             Path(SAVE_DIR).mkdir(parents=True, exist_ok=True)
             logger.info(f"Image saving enabled: {SAVE_DIR}")
         
-        logger.info(f"Monitoring {len(DOCKS)} docks")
+        # logger.info(f"Monitoring {len(DOCKS)} docks")
         for dock_name in DOCKS.keys():
             logger.info(f"  - {dock_name}")
         
-        logger.info(f"Check interval: {CHECK_INTERVAL_SECONDS} seconds")
+        # logger.info(f"Check interval: {CHECK_INTERVAL_SECONDS} seconds")
         
     
     def is_dock_active(self, dock_name: str) -> bool:
@@ -97,7 +98,7 @@ class FerryMonitor:
             dock_name: Name of the dock
             image_url: URL of the dock camera image
         """
-        logger.info(f"Checking {dock_name}...")
+        # logger.info(f"Checking {dock_name}...")
         
         if not self.is_dock_active(dock_name):
             logger.info(f"{dock_name} is currently inactive (outside schedule)")
@@ -129,7 +130,7 @@ class FerryMonitor:
         
         # Apply image optimization if enabled
         if DETECTION_CONFIG.get('image_optimization', False):
-            logger.info("Applying image optimization...")
+            # logger.info("Applying image optimization...")
             target_size = DETECTION_CONFIG.get('imgsz', 640)
             image = optimize_image(image, target_size=target_size)
 
@@ -168,7 +169,7 @@ class FerryMonitor:
         status = "🚢 FERRY PRESENT" if ship_detected else "❌ NO FERRY"
         
         # Print result
-        print(f"{status} at {dock_name} ({timestamp})")
+        print(f"{timestamp}: {status} at {dock_name}")
 
         # Define docks with their coordinates
         docks_info = {
@@ -195,10 +196,26 @@ class FerryMonitor:
             lat_str = f"{abs(lat):.6f}{'N' if lat >= 0 else 'S'}"
             lon_str = f"{abs(lon):.6f}{'E' if lon >= 0 else 'W'}"
             
-            display_name = f"{dock_name} ({lat_str},{lon_str} | {mgrs_coord})"
+            # display_name = f"{dock_name} ({lat_str},{lon_str} | {mgrs_coord})"
+            
+            message_data = {
+                "dock_name": dock_name,
+                "ferry_status": status,
+                "coordinates": f"{lat_str},{lon_str}",
+                "mgrs": mgrs_coord
+            }
+        else:
+            # Fallback for unknown docks
+            message_data = {
+                "dock_name": dock_name,
+                "ferry_status": status,
+                "coordinates": "",
+                "mgrs": ""
+            }
 
-        cs_message_text = f"{display_name}: {status}"
-        send_public_message(message_text=cs_message_text, roomName="pierce_county_ferry_detector")
+        # cs_message_text = f"{display_name}: {status}"
+        cs_message_text = json.dumps(message_data, ensure_ascii=False)
+        send_public_message(message_text=cs_message_text, roomName="sams_test_room")
 
         
         # Save image if configured (ALWAYS if SAVE_IMAGES is True)
@@ -250,14 +267,14 @@ class FerryMonitor:
         """
         Check all configured docks
         """
-        print("\n" + "=" * 60)
-        print(f"Ferry Check - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print("=" * 60)
+        # print("\n" + "=" * 60)
+        # print(f"Ferry Check - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        # print("=" * 60)
         
         for dock_name, image_url in DOCKS.items():
             self.check_dock(dock_name, image_url)
         
-        print("=" * 60 + "\n")
+        # print("=" * 60 + "\n")
     
     def run(self) -> None:
         """
@@ -269,9 +286,9 @@ class FerryMonitor:
         # Schedule regular checks
         schedule.every(CHECK_INTERVAL_SECONDS).seconds.do(self.check_all_docks)
         
-        logger.info("Monitor started. Press Ctrl+C to stop.")
-        print(f"🔄 Monitoring active - checking every {CHECK_INTERVAL_SECONDS} seconds")
-        print("Press Ctrl+C to stop\n")
+        # logger.info("Monitor started. Press Ctrl+C to stop.")
+        # print(f"🔄 Monitoring active - checking every {CHECK_INTERVAL_SECONDS} seconds")
+        # print("Press Ctrl+C to stop\n")
         
         try:
             while True:

@@ -51,7 +51,6 @@ class YOLO26Detector(YOLOv8Detector):
                 except Exception as e:
                     logger.error(f"Failed to download model: {e}")
                     pass
-            print(self.model)
             if hasattr(self.model, 'names'):
                 logger.info(f"Model classes: {self.model.names}")
 

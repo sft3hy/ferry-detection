@@ -45,7 +45,7 @@ DETECTION_CONFIG = {
 
     # Minimum bounding box width to be considered a ferry
     # Small boats often appear as small bounding boxes (e.g., < 20px width)
-    'min_bbox_width': 105,
+    'min_bbox_width': 90,
     
     # Custom model path (only used if model_type is 'custom')
     'custom_model_path': None

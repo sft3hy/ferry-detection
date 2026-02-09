@@ -62,7 +62,7 @@ def get_clean_ca_bundle(original_path):
             print(f"WARNING: No valid certificates found in {original_path}. Using original.")
             return original_path
 
-        print(f"INFO: Found {len(certs)} valid certificates in {original_path}. Creating cleaned bundle.")
+        # print(f"INFO: Found {len(certs)} valid certificates in {original_path}. Creating cleaned bundle.")
 
         # Create a temp file
         # We use /tmp explicitly or let system decide. 

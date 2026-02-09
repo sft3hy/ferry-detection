@@ -215,7 +215,7 @@ class FerryMonitor:
 
         # cs_message_text = f"{display_name}: {status}"
         cs_message_text = json.dumps(message_data, ensure_ascii=False)
-        send_public_message(message_text=cs_message_text, roomName="sams_test_room")
+        send_public_message(message_text=cs_message_text, roomName="pierce_county_ferry_detector")
 
         
         # Save image if configured (ALWAYS if SAVE_IMAGES is True)
